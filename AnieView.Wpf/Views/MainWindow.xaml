@@ -1,0 +1,28 @@
+<Window x:Class="AnieView.Wpf.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AnieView.Wpf.Views"
+        mc:Ignorable="d"
+        Title="{Binding WindowTitle}" Height="600" Width="800"
+        Background="#1E1E1E"
+        KeyDown="Window_KeyDown"
+        AllowDrop="True" Drop="Window_Drop">
+    <Grid>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="MainScrollViewer">
+            <Image Source="{Binding DisplayImage}" 
+                   RenderOptions.BitmapScalingMode="HighQuality"
+                   Stretch="None"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Top">
+                <Image.LayoutTransform>
+                    <TransformGroup>
+                        <RotateTransform Angle="{Binding RotationAngle}"/>
+                        <ScaleTransform ScaleX="{Binding ScaleX}" ScaleY="{Binding ScaleY}"/>
+                    </TransformGroup>
+                </Image.LayoutTransform>
+            </Image>
+        </ScrollViewer>
+    </Grid>
+</Window>

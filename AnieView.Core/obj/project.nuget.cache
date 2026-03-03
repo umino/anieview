@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "OVM3HAsbMnw=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\makoto.toshima\\Documents\\ag\\anieview\\AnieView.Core\\AnieView.Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\makoto.toshima\\.nuget\\packages\\communitytoolkit.mvvm\\8.4.0\\communitytoolkit.mvvm.8.4.0.nupkg.sha512"
+  ],
+  "logs": []
+}

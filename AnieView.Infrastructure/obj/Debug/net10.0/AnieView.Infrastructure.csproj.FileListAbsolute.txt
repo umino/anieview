@@ -1,0 +1,5 @@
+C:\Users\makoto.toshima\Documents\ag\anieview\AnieView.Infrastructure\obj\Debug\net10.0\AnieView.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\makoto.toshima\Documents\ag\anieview\AnieView.Infrastructure\obj\Debug\net10.0\AnieView.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\makoto.toshima\Documents\ag\anieview\AnieView.Infrastructure\obj\Debug\net10.0\AnieView.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\makoto.toshima\Documents\ag\anieview\AnieView.Infrastructure\obj\Debug\net10.0\AnieView.Infrastructure.AssemblyInfo.cs
+C:\Users\makoto.toshima\Documents\ag\anieview\AnieView.Infrastructure\obj\Debug\net10.0\AnieView.Infrastructure.csproj.CoreCompileInputs.cache

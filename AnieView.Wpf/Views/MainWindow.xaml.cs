@@ -64,6 +64,7 @@ public partial class MainWindow : Window
                 ViewModel.DuplicateCommand.Execute(null);
                 break;
             case Key.Escape:
+                e.Handled = true; // イベントが他のwindowに伝播しないようにする
                 Close();
                 break;
             case Key.Q:

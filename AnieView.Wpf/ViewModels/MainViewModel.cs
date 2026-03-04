@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AnieView.Core.Interfaces;
 using AnieView.Core.Models;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AnieView.Wpf.ViewModels;
 
@@ -11,7 +10,7 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly IImageService _imageService;
     private readonly INavigationService _navigationService;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IWindowService _windowService;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ScaleX))]
@@ -67,11 +66,11 @@ public partial class MainViewModel : ObservableObject
 
     private ImageFile? _currentImageFile;
 
-    public MainViewModel(IImageService imageService, INavigationService navigationService, IServiceProvider serviceProvider)
+    public MainViewModel(IImageService imageService, INavigationService navigationService, IWindowService windowService)
     {
         _imageService = imageService;
         _navigationService = navigationService;
-        _serviceProvider = serviceProvider;
+        _windowService = windowService;
     }
 
     public async Task LoadInitialImage(string filePath)
@@ -138,14 +137,7 @@ public partial class MainViewModel : ObservableObject
     private void Duplicate()
     {
         if (_currentImageFile == null) return;
-        var newWindow = _serviceProvider.GetRequiredService<Views.MainWindow>();
-        if (newWindow.DataContext is MainViewModel vm)
-        {
-            vm.LoadInitialImage(_currentImageFile.FilePath).ConfigureAwait(false);
-            vm.ZoomPercentage = _zoomPercentage;
-            vm.RotationAngle = _rotationAngle;
-        }
-        newWindow.Show();
+        _windowService.OpenDuplicateWindow(_currentImageFile.FilePath, _zoomPercentage, _rotationAngle);
     }
 
     [RelayCommand]

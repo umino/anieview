@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using AnieView.Core.Interfaces;
 using AnieView.Core.Services;
 using AnieView.Infrastructure.Services;
+using AnieView.Wpf.Services;
 using AnieView.Wpf.ViewModels;
 using AnieView.Wpf.Views;
 
@@ -26,6 +27,9 @@ public partial class App : Application
 
                 // Infrastructure Services
                 services.AddSingleton<IImageService, WpfImageService>();
+
+                // Window Services
+                services.AddSingleton<IWindowService, WpfWindowService>();
 
                 // ViewModels
                 services.AddTransient<MainViewModel>();

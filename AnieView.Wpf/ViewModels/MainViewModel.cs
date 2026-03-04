@@ -3,8 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AnieView.Core.Interfaces;
 using AnieView.Core.Models;
-using AnieView.Core.Services;
-using AnieView.Infrastructure.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AnieView.Wpf.ViewModels;
 
@@ -12,6 +11,7 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly IImageService _imageService;
     private readonly INavigationService _navigationService;
+    private readonly IServiceProvider _serviceProvider;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ScaleX))]
@@ -67,12 +67,11 @@ public partial class MainViewModel : ObservableObject
 
     private ImageFile? _currentImageFile;
 
-    public MainViewModel() : this(new WpfImageService(), new NavigationService()) { }
-
-    public MainViewModel(IImageService imageService, INavigationService navigationService)
+    public MainViewModel(IImageService imageService, INavigationService navigationService, IServiceProvider serviceProvider)
     {
         _imageService = imageService;
         _navigationService = navigationService;
+        _serviceProvider = serviceProvider;
     }
 
     public async Task LoadInitialImage(string filePath)
@@ -139,7 +138,7 @@ public partial class MainViewModel : ObservableObject
     private void Duplicate()
     {
         if (_currentImageFile == null) return;
-        var newWindow = new Views.MainWindow();
+        var newWindow = _serviceProvider.GetRequiredService<Views.MainWindow>();
         if (newWindow.DataContext is MainViewModel vm)
         {
             vm.LoadInitialImage(_currentImageFile.FilePath).ConfigureAwait(false);

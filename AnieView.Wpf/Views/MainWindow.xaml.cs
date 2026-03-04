@@ -8,10 +8,10 @@ public partial class MainWindow : Window
 {
     private MainViewModel ViewModel => (MainViewModel)DataContext;
 
-    public MainWindow()
+    public MainWindow(MainViewModel viewModel)
     {
         InitializeComponent();
-        DataContext = new MainViewModel();
+        DataContext = viewModel;
         SizeToContent = SizeToContent.WidthAndHeight;
 
         // Check for command line arguments (image path)
@@ -23,7 +23,6 @@ public partial class MainWindow : Window
         }
         else
         {
-            //TODO: 画面上にscreenサイズの1/4の大きさでwindowを表示するようにする
             ViewModel.EmptyImageCommand.Execute(null);
         }
     }

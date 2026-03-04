@@ -66,6 +66,12 @@ public partial class MainWindow : Window
             case Key.Escape:
                 Close();
                 break;
+            case Key.Q:
+                if (isShift)
+                {
+                    System.Windows.Application.Current.Shutdown();
+                }
+                break;
             
             // Fractional Resizing (2, 3, 4, 5, 6)
             case Key.D2:

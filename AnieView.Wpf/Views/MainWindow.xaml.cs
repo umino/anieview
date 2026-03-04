@@ -21,6 +21,11 @@ public partial class MainWindow : Window
             var fullPath = System.IO.Path.GetFullPath(args[1]);
             _ = ViewModel.LoadInitialImage(fullPath);
         }
+        else
+        {
+            //TODO: 画面上にscreenサイズの1/4の大きさでwindowを表示するようにする
+            ViewModel.EmptyImageCommand.Execute(null);
+        }
     }
 
     private void Window_KeyDown(object sender, KeyEventArgs e)

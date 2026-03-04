@@ -3,14 +3,16 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AnieView.Core.Interfaces;
 using AnieView.Core.Models;
+using AnieView.Application.UseCases;
 
 namespace AnieView.Wpf.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    private readonly IImageService _imageService;
-    private readonly INavigationService _navigationService;
     private readonly IWindowService _windowService;
+    private readonly LoadImageUseCase _loadImageUseCase;
+    private readonly NavigateImageUseCase _navigateImageUseCase;
+    private readonly CalculateZoomUseCase _calculateZoomUseCase;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ScaleX))]
@@ -41,21 +43,12 @@ public partial class MainViewModel : ObservableObject
         {
             if (IsMaximizedToScreen && DisplayImage != null)
             {
-                // Compute image size in device independent units (DIP)
-                double imgWidthDip = DisplayImage.PixelWidth * 96.0 / DisplayImage.DpiX;
-                double imgHeightDip = DisplayImage.PixelHeight * 96.0 / DisplayImage.DpiY;
-
-                // If rotated by 90 or 270 degrees, swap dimensions
-                if (RotationAngle % 180 != 0)
-                {
-                    (imgWidthDip, imgHeightDip) = (imgHeightDip, imgWidthDip);
-                }
-
-                double workAreaWidth = SystemParameters.WorkArea.Width;
-                double workAreaHeight = SystemParameters.WorkArea.Height;
-
-                double scale = Math.Min(workAreaWidth / Math.Max(1.0, imgWidthDip), workAreaHeight / Math.Max(1.0, imgHeightDip));
-                return scale;
+                return _calculateZoomUseCase.CalculateFitScale(
+                    DisplayImage.PixelWidth * 96.0 / DisplayImage.DpiX,
+                    DisplayImage.PixelHeight * 96.0 / DisplayImage.DpiY,
+                    SystemParameters.WorkArea.Width,
+                    SystemParameters.WorkArea.Height,
+                    RotationAngle);
             }
 
             return ZoomPercentage / 100.0;
@@ -66,11 +59,16 @@ public partial class MainViewModel : ObservableObject
 
     private ImageFile? _currentImageFile;
 
-    public MainViewModel(IImageService imageService, INavigationService navigationService, IWindowService windowService)
+    public MainViewModel(
+        IWindowService windowService,
+        LoadImageUseCase loadImageUseCase,
+        NavigateImageUseCase navigateImageUseCase,
+        CalculateZoomUseCase calculateZoomUseCase)
     {
-        _imageService = imageService;
-        _navigationService = navigationService;
         _windowService = windowService;
+        _loadImageUseCase = loadImageUseCase;
+        _navigateImageUseCase = navigateImageUseCase;
+        _calculateZoomUseCase = calculateZoomUseCase;
     }
 
     public async Task LoadInitialImage(string filePath)
@@ -83,8 +81,8 @@ public partial class MainViewModel : ObservableObject
     {
         if (_currentImageFile == null) return;
         
-        var result = await _imageService.LoadImageAsync(_currentImageFile.FilePath);
-        DisplayImage = result as BitmapSource;
+        var imageData = await _loadImageUseCase.ExecuteAsync(_currentImageFile.FilePath);
+        DisplayImage = imageData?.RawNativeImage as BitmapSource;
 
         if (DisplayImage == null)
         {
@@ -103,8 +101,8 @@ public partial class MainViewModel : ObservableObject
         if (_currentImageFile == null || !int.TryParse(directionStr, out int direction)) return;
 
         string? nextPath = direction > 0 
-            ? _navigationService.GetNextFile(_currentImageFile.FilePath)
-            : _navigationService.GetPreviousFile(_currentImageFile.FilePath);
+            ? _navigateImageUseCase.GetNextPath(_currentImageFile.FilePath)
+            : _navigateImageUseCase.GetPreviousPath(_currentImageFile.FilePath);
 
         if (nextPath != null)
         {

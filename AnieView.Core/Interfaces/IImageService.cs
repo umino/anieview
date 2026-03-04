@@ -4,5 +4,5 @@ namespace AnieView.Core.Interfaces;
 
 public interface IImageService
 {
-    Task<object?> LoadImageAsync(string filePath);
+    Task<ImageData?> LoadImageAsync(string filePath);
 }

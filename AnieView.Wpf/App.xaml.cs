@@ -1,6 +1,7 @@
 ﻿ using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using AnieView.Application.UseCases;
 using AnieView.Core.Interfaces;
 using AnieView.Infrastructure.Services;
 using AnieView.Wpf.Services;
@@ -12,7 +13,7 @@ namespace AnieView.Wpf;
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     private readonly IHost _host;
 
@@ -29,6 +30,11 @@ public partial class App : Application
 
                 // Window Services
                 services.AddSingleton<IWindowService, WpfWindowService>();
+
+                // Use Cases
+                services.AddTransient<LoadImageUseCase>();
+                services.AddTransient<NavigateImageUseCase>();
+                services.AddTransient<CalculateZoomUseCase>();
 
                 // ViewModels
                 services.AddTransient<MainViewModel>();

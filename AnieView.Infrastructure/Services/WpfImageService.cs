@@ -2,12 +2,13 @@ using System;
 using System.IO;
 using System.Windows.Media.Imaging;
 using AnieView.Core.Interfaces;
+using AnieView.Core.Models;
 
 namespace AnieView.Infrastructure.Services;
 
 public class WpfImageService : IImageService
 {
-    public async Task<object?> LoadImageAsync(string filePath)
+    public async Task<ImageData?> LoadImageAsync(string filePath)
     {
         try
         {
@@ -22,7 +23,16 @@ public class WpfImageService : IImageService
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
                 bitmap.EndInit();
                 bitmap.Freeze();
-                return bitmap;
+
+                // 簡易化のため、ピクセルバッファ抽出は省略し RawNativeImage に BitmapSource を入れる
+                // 本来は Clean Architecture 的にはピクセルバッファを PixelBuffer に入れるべきだが、パフォーマンスを考慮
+                return new ImageData(
+                    pixelBuffer: Array.Empty<byte>(), 
+                    width: bitmap.PixelWidth, 
+                    height: bitmap.PixelHeight, 
+                    dpiX: bitmap.DpiX, 
+                    dpiY: bitmap.DpiY, 
+                    rawNativeImage: bitmap);
             });
         }
         catch (Exception ex)

@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="AnieView.Core/AnieView.Core.csproj" />
   <Project Path="AnieView.Infrastructure/AnieView.Infrastructure.csproj" />
+  <Project Path="AnieView.Application/AnieView.Application.csproj" />
   <Project Path="AnieView.Wpf/AnieView.Wpf.csproj" />
 </Solution>

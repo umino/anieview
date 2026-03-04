@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AnieView.Core\AnieView.Core.csproj" />
     <ProjectReference Include="..\AnieView.Infrastructure\AnieView.Infrastructure.csproj" />
+    <ProjectReference Include="..\AnieView.Application\AnieView.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

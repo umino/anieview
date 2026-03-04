@@ -41,4 +41,38 @@ public class WpfImageService : IImageService
             return null;
         }
     }
+
+    public async Task<ImageData> CreateEmptyImageAsync(int width, int height)
+    {
+        return await Task.Run(() =>
+        {
+            const double dpi = 96.0;
+            var pixelFormat = System.Windows.Media.PixelFormats.Pbgra32;
+            var writeable = new WriteableBitmap(width, height, dpi, dpi, pixelFormat, null);
+
+            int bytesPerPixel = pixelFormat.BitsPerPixel / 8;
+            int stride = width * bytesPerPixel;
+            var pixels = new byte[height * stride];
+
+            // 白で塗りつぶす（不透明）
+            for (int i = 0; i < pixels.Length; i += bytesPerPixel)
+            {
+                pixels[i + 0] = 255; // B
+                pixels[i + 1] = 255; // G
+                pixels[i + 2] = 255; // R
+                pixels[i + 3] = 255; // A
+            }
+
+            writeable.WritePixels(new System.Windows.Int32Rect(0, 0, width, height), pixels, stride, 0);
+            writeable.Freeze();
+
+            return new ImageData(
+                pixelBuffer: pixels,
+                width: width,
+                height: height,
+                dpiX: dpi,
+                dpiY: dpi,
+                rawNativeImage: writeable);
+        });
+    }
 }

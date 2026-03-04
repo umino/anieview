@@ -14,6 +14,7 @@ public partial class MainViewModel : ObservableObject
     private readonly NavigateImageUseCase _navigateImageUseCase;
     private readonly CalculateZoomUseCase _calculateZoomUseCase;
     private readonly IScreenInfoService _screenInfoService;
+    private readonly CreateEmptyImageUseCase _createEmptyImageUseCase;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ScaleX))]
@@ -65,13 +66,15 @@ public partial class MainViewModel : ObservableObject
         LoadImageUseCase loadImageUseCase,
         NavigateImageUseCase navigateImageUseCase,
         CalculateZoomUseCase calculateZoomUseCase,
-        IScreenInfoService screenInfoService)
+        IScreenInfoService screenInfoService,
+        CreateEmptyImageUseCase createEmptyImageUseCase)
     {
         _windowService = windowService;
         _loadImageUseCase = loadImageUseCase;
         _navigateImageUseCase = navigateImageUseCase;
         _calculateZoomUseCase = calculateZoomUseCase;
         _screenInfoService = screenInfoService;
+        _createEmptyImageUseCase = createEmptyImageUseCase;
     }
 
     public async Task LoadInitialImage(string filePath)
@@ -157,39 +160,16 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void EmptyImage()
+    private async Task EmptyImage()
     {
-        // 画面サイズの1/4（面積比）に相当する大きさの空画像を作成してセットする
-        // 面積比が1/4なので、幅と高さはそれぞれ画面の1/2にする
-        int width = Math.Max(1, (int)(_screenInfoService.PrimaryScreenWidth / 2.0));
-        int height = Math.Max(1, (int)(_screenInfoService.PrimaryScreenHeight / 2.0));
-
-        const double dpi = 96.0;
-        var pixelFormat = PixelFormats.Pbgra32;
-        var writeable = new WriteableBitmap(width, height, dpi, dpi, pixelFormat, null);
-
-        int bytesPerPixel = pixelFormat.BitsPerPixel / 8;
-        int stride = width * bytesPerPixel;
-        var pixels = new byte[height * stride];
-
-        // 白で塗りつぶす（不透明）
-        for (int i = 0; i < pixels.Length; i += bytesPerPixel)
-        {
-            pixels[i + 0] = 255; // B
-            pixels[i + 1] = 255; // G
-            pixels[i + 2] = 255; // R
-            pixels[i + 3] = 255; // A
-        }
-
-        writeable.WritePixels(new Int32Rect(0, 0, width, height), pixels, stride, 0);
-
-        DisplayImage = writeable;
+        var imageData = await _createEmptyImageUseCase.ExecuteAsync();
+        DisplayImage = imageData.RawNativeImage as BitmapSource;
         _currentImageFile = null;
 
         // 表示状態をリセット
         ZoomPercentage = 100.0;
         RotationAngle = 0;
-        WindowTitle = $"AnieView - Empty Image ({width}x{height})";
+        WindowTitle = $"AnieView - Empty Image ({imageData.Width}x{imageData.Height})";
     }
 
 

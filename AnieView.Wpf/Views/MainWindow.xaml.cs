@@ -35,14 +35,16 @@ public partial class MainWindow : Window
         switch (e.Key)
         {
             case Key.Right:
-            case Key.Space:
                 ViewModel.NavigateCommand.Execute("1");
+                break;
+            case Key.Space:
+                ViewModel.NavigateCommand.Execute(isShift ? "1": "-1");
                 break;
             case Key.Left:
             case Key.Back:
                 ViewModel.NavigateCommand.Execute("-1");
                 break;
-            case Key.Oem1: // ; (Semicolon) on Japanese keyboard
+            case Key.OemPlus: // + (Plus) on Japanese keyboard  
                 ViewModel.ZoomInCommand.Execute(null);
                 break;
             case Key.OemMinus: // -

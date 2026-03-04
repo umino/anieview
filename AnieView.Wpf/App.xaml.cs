@@ -36,6 +36,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<LoadImageUseCase>();
                 services.AddTransient<NavigateImageUseCase>();
                 services.AddTransient<CalculateZoomUseCase>();
+                services.AddTransient<CreateEmptyImageUseCase>();
 
                 // ViewModels
                 services.AddTransient<MainViewModel>();

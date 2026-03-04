@@ -1,4 +1,3 @@
-using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AnieView.Core.Interfaces;
@@ -19,7 +18,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ScaleX))]
     [NotifyPropertyChangedFor(nameof(ScaleY))]
-    private BitmapSource? _displayImage;
+    private ImageData? _displayImage;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ScaleX))]
@@ -46,8 +45,8 @@ public partial class MainViewModel : ObservableObject
             if (IsMaximizedToScreen && DisplayImage != null)
             {
                 return _calculateZoomUseCase.CalculateFitScale(
-                    DisplayImage.PixelWidth * 96.0 / DisplayImage.DpiX,
-                    DisplayImage.PixelHeight * 96.0 / DisplayImage.DpiY,
+                    DisplayImage.Width * 96.0 / DisplayImage.DpiX,
+                    DisplayImage.Height * 96.0 / DisplayImage.DpiY,
                     _screenInfoService.WorkAreaWidth,
                     _screenInfoService.WorkAreaHeight,
                     RotationAngle);
@@ -88,7 +87,7 @@ public partial class MainViewModel : ObservableObject
         if (_currentImageFile == null) return;
         
         var imageData = await _loadImageUseCase.ExecuteAsync(_currentImageFile.FilePath);
-        DisplayImage = imageData?.RawNativeImage as BitmapSource;
+        DisplayImage = imageData;
 
         if (DisplayImage == null)
         {
@@ -114,8 +113,8 @@ public partial class MainViewModel : ObservableObject
         {
             var nextImage = new ImageFile(nextPath)
             {
-                ZoomPercentage = _zoomPercentage,
-                RotationAngle = _rotationAngle
+                ZoomPercentage = ZoomPercentage,
+                RotationAngle = RotationAngle
             };
             _currentImageFile = nextImage;
             _ = LoadCurrentImage();
@@ -146,7 +145,7 @@ public partial class MainViewModel : ObservableObject
         if (!int.TryParse(parameter.Substring(1), out int n)) return;
 
         double screenDim = type == 'W' ? _screenInfoService.WorkAreaWidth : _screenInfoService.WorkAreaHeight;
-        int pixelDim = type == 'W' ? DisplayImage.PixelWidth : DisplayImage.PixelHeight;
+        int pixelDim = type == 'W' ? DisplayImage.Width : DisplayImage.Height;
         double dpi = type == 'W' ? DisplayImage.DpiX : DisplayImage.DpiY;
 
         ZoomPercentage = _calculateZoomUseCase.CalculateFractionalZoom(pixelDim, dpi, screenDim, n);
@@ -156,14 +155,14 @@ public partial class MainViewModel : ObservableObject
     private void Duplicate()
     {
         if (_currentImageFile == null) return;
-        _windowService.OpenDuplicateWindow(_currentImageFile.FilePath, _zoomPercentage, _rotationAngle);
+        _windowService.OpenDuplicateWindow(_currentImageFile.FilePath, ZoomPercentage, RotationAngle);
     }
 
     [RelayCommand]
     private async Task EmptyImage()
     {
         var imageData = await _createEmptyImageUseCase.ExecuteAsync();
-        DisplayImage = imageData.RawNativeImage as BitmapSource;
+        DisplayImage = imageData;
         _currentImageFile = null;
 
         // 表示状態をリセット

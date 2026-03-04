@@ -1,6 +1,7 @@
+using System.IO;
 using AnieView.Core.Interfaces;
 
-namespace AnieView.Core.Services;
+namespace AnieView.Infrastructure.Services;
 
 public class NavigationService : INavigationService
 {

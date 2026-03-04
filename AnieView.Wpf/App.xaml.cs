@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using AnieView.Core.Interfaces;
-using AnieView.Core.Services;
 using AnieView.Infrastructure.Services;
 using AnieView.Wpf.Services;
 using AnieView.Wpf.ViewModels;

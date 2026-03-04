@@ -14,6 +14,8 @@ public partial class MainViewModel : ObservableObject
     private readonly INavigationService _navigationService;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ScaleX))]
+    [NotifyPropertyChangedFor(nameof(ScaleY))]
     private BitmapSource? _displayImage;
 
     [ObservableProperty]
@@ -22,13 +24,46 @@ public partial class MainViewModel : ObservableObject
     private double _zoomPercentage = 100.0;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ScaleX))]
+    [NotifyPropertyChangedFor(nameof(ScaleY))]
+    private bool _isMaximizedToScreen = false;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ScaleX))]
+    [NotifyPropertyChangedFor(nameof(ScaleY))]
     private int _rotationAngle = 0;
 
     [ObservableProperty]
     private string _windowTitle = "AnieView";
 
-    public double ScaleX => ZoomPercentage / 100.0;
-    public double ScaleY => ZoomPercentage / 100.0;
+    public double ScaleX
+    {
+        get
+        {
+            if (IsMaximizedToScreen && DisplayImage != null)
+            {
+                // Compute image size in device independent units (DIP)
+                double imgWidthDip = DisplayImage.PixelWidth * 96.0 / DisplayImage.DpiX;
+                double imgHeightDip = DisplayImage.PixelHeight * 96.0 / DisplayImage.DpiY;
+
+                // If rotated by 90 or 270 degrees, swap dimensions
+                if (RotationAngle % 180 != 0)
+                {
+                    (imgWidthDip, imgHeightDip) = (imgHeightDip, imgWidthDip);
+                }
+
+                double workAreaWidth = SystemParameters.WorkArea.Width;
+                double workAreaHeight = SystemParameters.WorkArea.Height;
+
+                double scale = Math.Min(workAreaWidth / Math.Max(1.0, imgWidthDip), workAreaHeight / Math.Max(1.0, imgHeightDip));
+                return scale;
+            }
+
+            return ZoomPercentage / 100.0;
+        }
+    }
+
+    public double ScaleY => ScaleX;
 
     private ImageFile? _currentImageFile;
 
@@ -93,6 +128,12 @@ public partial class MainViewModel : ObservableObject
 
     [RelayCommand]
     private void Rotate() => RotationAngle = (RotationAngle + 90) % 360;
+
+    [RelayCommand]
+    private void ToggleFitToScreen()
+    {
+        IsMaximizedToScreen = !IsMaximizedToScreen;
+    }
 
     [RelayCommand]
     private void Duplicate()

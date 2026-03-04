@@ -52,6 +52,9 @@ public partial class MainWindow : Window
             case Key.R:
                 ViewModel.RotateCommand.Execute(null);
                 break;
+            case Key.F:
+                ViewModel.ToggleFitToScreenCommand.Execute(null);
+                break;
             case Key.D:
                 ViewModel.DuplicateCommand.Execute(null);
                 break;

@@ -68,24 +68,10 @@ public partial class MainWindow : Window
             case Key.D5:
             case Key.D6:
                 int n = (int)e.Key - (int)Key.D0;
-                ExecuteResizing(isShift ? 'H' : 'W', n);
+                string param = $"{(isShift ? 'H' : 'W')}{n}";
+                ViewModel.ResizeToFractionCommand.Execute(param);
                 break;
         }
-    }
-
-    private void ExecuteResizing(char type, int n)
-    {
-        if (ViewModel.DisplayImage == null) return;
-
-        // Current display size
-        double workAreaWidth = SystemParameters.WorkArea.Width;
-        double workAreaHeight = SystemParameters.WorkArea.Height;
-
-        double targetDimension = type == 'W' ? workAreaWidth : workAreaHeight;
-        double originalDimension = type == 'W' ? ViewModel.DisplayImage.PixelWidth : ViewModel.DisplayImage.PixelHeight;
-
-        double newZoom = (targetDimension / n / originalDimension) * 100.0;
-        ViewModel.ZoomPercentage = newZoom;
     }
 
     private void Window_Drop(object sender, DragEventArgs e)

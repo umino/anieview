@@ -30,6 +30,7 @@ public partial class App : System.Windows.Application
 
                 // Window Services
                 services.AddSingleton<IWindowService, WpfWindowService>();
+                services.AddSingleton<IScreenInfoService, WpfScreenInfoService>();
 
                 // Use Cases
                 services.AddTransient<LoadImageUseCase>();

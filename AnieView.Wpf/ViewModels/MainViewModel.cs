@@ -13,6 +13,7 @@ public partial class MainViewModel : ObservableObject
     private readonly LoadImageUseCase _loadImageUseCase;
     private readonly NavigateImageUseCase _navigateImageUseCase;
     private readonly CalculateZoomUseCase _calculateZoomUseCase;
+    private readonly IScreenInfoService _screenInfoService;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ScaleX))]
@@ -46,8 +47,8 @@ public partial class MainViewModel : ObservableObject
                 return _calculateZoomUseCase.CalculateFitScale(
                     DisplayImage.PixelWidth * 96.0 / DisplayImage.DpiX,
                     DisplayImage.PixelHeight * 96.0 / DisplayImage.DpiY,
-                    SystemParameters.WorkArea.Width,
-                    SystemParameters.WorkArea.Height,
+                    _screenInfoService.WorkAreaWidth,
+                    _screenInfoService.WorkAreaHeight,
                     RotationAngle);
             }
 
@@ -63,12 +64,14 @@ public partial class MainViewModel : ObservableObject
         IWindowService windowService,
         LoadImageUseCase loadImageUseCase,
         NavigateImageUseCase navigateImageUseCase,
-        CalculateZoomUseCase calculateZoomUseCase)
+        CalculateZoomUseCase calculateZoomUseCase,
+        IScreenInfoService screenInfoService)
     {
         _windowService = windowService;
         _loadImageUseCase = loadImageUseCase;
         _navigateImageUseCase = navigateImageUseCase;
         _calculateZoomUseCase = calculateZoomUseCase;
+        _screenInfoService = screenInfoService;
     }
 
     public async Task LoadInitialImage(string filePath)
@@ -132,6 +135,21 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void ResizeToFraction(string parameter)
+    {
+        if (DisplayImage == null || string.IsNullOrEmpty(parameter)) return;
+
+        char type = parameter[0]; // 'W' or 'H'
+        if (!int.TryParse(parameter.Substring(1), out int n)) return;
+
+        double screenDim = type == 'W' ? _screenInfoService.WorkAreaWidth : _screenInfoService.WorkAreaHeight;
+        int pixelDim = type == 'W' ? DisplayImage.PixelWidth : DisplayImage.PixelHeight;
+        double dpi = type == 'W' ? DisplayImage.DpiX : DisplayImage.DpiY;
+
+        ZoomPercentage = _calculateZoomUseCase.CalculateFractionalZoom(pixelDim, dpi, screenDim, n);
+    }
+
+    [RelayCommand]
     private void Duplicate()
     {
         if (_currentImageFile == null) return;
@@ -143,8 +161,8 @@ public partial class MainViewModel : ObservableObject
     {
         // 画面サイズの1/4（面積比）に相当する大きさの空画像を作成してセットする
         // 面積比が1/4なので、幅と高さはそれぞれ画面の1/2にする
-        int width = Math.Max(1, (int)(SystemParameters.PrimaryScreenWidth / 2.0));
-        int height = Math.Max(1, (int)(SystemParameters.PrimaryScreenHeight / 2.0));
+        int width = Math.Max(1, (int)(_screenInfoService.PrimaryScreenWidth / 2.0));
+        int height = Math.Max(1, (int)(_screenInfoService.PrimaryScreenHeight / 2.0));
 
         const double dpi = 96.0;
         var pixelFormat = PixelFormats.Pbgra32;

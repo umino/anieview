@@ -18,7 +18,10 @@ public class WpfWindowService : IWindowService
         var newWindow = _serviceProvider.GetRequiredService<Views.MainWindow>();
         if (newWindow.DataContext is MainViewModel vm)
         {
-            vm.LoadInitialImage(filePath).ConfigureAwait(false);
+            // まず画像をロード
+            _ = vm.LoadInitialImage(filePath);
+            
+            // パラメータを復元
             vm.ZoomPercentage = zoomPercentage;
             vm.RotationAngle = rotationAngle;
         }

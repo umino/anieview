@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:AnieView.Wpf.Views"
         xmlns:conv="clr-namespace:AnieView.Wpf.Converters"
         mc:Ignorable="d"
-        Title="{Binding WindowTitle}" Height="600" Width="800"
+        Title="{Binding WindowTitle}" SizeToContent="WidthAndHeight"
         Background="#1E1E1E"
         KeyDown="Window_KeyDown"
         AllowDrop="True" Drop="Window_Drop">

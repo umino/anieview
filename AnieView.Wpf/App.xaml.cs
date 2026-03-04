@@ -37,6 +37,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<NavigateImageUseCase>();
                 services.AddTransient<CalculateZoomUseCase>();
                 services.AddTransient<CreateEmptyImageUseCase>();
+                services.AddTransient<CalculateWindowPlacementUseCase>();
 
                 // ViewModels
                 services.AddTransient<MainViewModel>();
@@ -52,6 +53,20 @@ public partial class App : System.Windows.Application
         await _host.StartAsync();
 
         var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+        var viewModel = (MainViewModel)mainWindow.DataContext;
+
+        // コマンドライン引数（画像パス）のチェック
+        var args = Environment.GetCommandLineArgs();
+        if (args.Length > 1)
+        {
+            var fullPath = System.IO.Path.GetFullPath(args[1]);
+            _ = viewModel.LoadInitialImage(fullPath);
+        }
+        else
+        {
+            viewModel.EmptyImageCommand.Execute(null);
+        }
+
         mainWindow.Show();
 
         base.OnStartup(e);

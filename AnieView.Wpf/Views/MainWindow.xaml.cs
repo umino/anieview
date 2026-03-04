@@ -1,30 +1,34 @@
-using System.Windows;
-using System.Windows.Input;
 using AnieView.Wpf.ViewModels;
+using AnieView.Application.UseCases;
+using System.ComponentModel;
 
 namespace AnieView.Wpf.Views;
 
 public partial class MainWindow : Window
 {
     private MainViewModel ViewModel => (MainViewModel)DataContext;
+    private readonly CalculateWindowPlacementUseCase _placementUseCase;
 
-    public MainWindow(MainViewModel viewModel)
+    public MainWindow(MainViewModel viewModel, CalculateWindowPlacementUseCase placementUseCase)
     {
+        _placementUseCase = placementUseCase;
         InitializeComponent();
         DataContext = viewModel;
-        SizeToContent = SizeToContent.WidthAndHeight;
+        
+        // サイズ変更時の制御
+        this.SizeChanged += MainWindow_SizeChanged;
+    }
 
-        // Check for command line arguments (image path)
-        var args = Environment.GetCommandLineArgs();
-        if (args.Length > 1)
-        {
-            var fullPath = System.IO.Path.GetFullPath(args[1]);
-            _ = ViewModel.LoadInitialImage(fullPath);
-        }
-        else
-        {
-            ViewModel.EmptyImageCommand.Execute(null);
-        }
+    private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        // はみ出し防止（クランプ）
+        var (left, top) = _placementUseCase.ClampToScreen(
+            this.Left, this.Top, 
+            this.ActualWidth, this.ActualHeight, 
+            SystemParameters.WorkArea.Width, SystemParameters.WorkArea.Height);
+
+        if (this.Left != left) this.Left = left;
+        if (this.Top != top) this.Top = top;
     }
 
     private void Window_KeyDown(object sender, KeyEventArgs e)

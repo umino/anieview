@@ -3,4 +3,5 @@
   <Project Path="AnieView.Infrastructure/AnieView.Infrastructure.csproj" />
   <Project Path="AnieView.Application/AnieView.Application.csproj" />
   <Project Path="AnieView.Wpf/AnieView.Wpf.csproj" />
+  <Project Path="AnieView.Tests/AnieView.Tests.csproj" />
 </Solution>

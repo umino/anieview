@@ -32,6 +32,9 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<IWindowService, WpfWindowService>();
                 services.AddSingleton<IScreenInfoService, WpfScreenInfoService>();
 
+                // Settings
+                services.AddSingleton<ISettingsService, JsonSettingsService>();
+
                 // Use Cases
                 services.AddTransient<LoadImageUseCase>();
                 services.AddTransient<NavigateImageUseCase>();
@@ -54,6 +57,12 @@ public partial class App : System.Windows.Application
 
         var mainWindow = _host.Services.GetRequiredService<MainWindow>();
         var viewModel = (MainViewModel)mainWindow.DataContext;
+
+        // 設定をロードし、NavigationService に反映
+        var settingsService = _host.Services.GetRequiredService<ISettingsService>();
+        settingsService.Load();
+        var navigationService = _host.Services.GetRequiredService<INavigationService>();
+        navigationService.SortOrder = settingsService.SortOrder;
 
         // コマンドライン引数（画像パス）のチェック
         var args = Environment.GetCommandLineArgs();

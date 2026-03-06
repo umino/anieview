@@ -63,6 +63,9 @@ public partial class MainWindow : Window
             case Key.D:
                 ViewModel.DuplicateCommand.Execute(null);
                 break;
+            case Key.S:
+                ViewModel.ToggleSortOrderCommand.Execute(null);
+                break;
             case Key.Escape:
                 e.Handled = true; // イベントが他のwindowに伝播しないようにする
                 Close();

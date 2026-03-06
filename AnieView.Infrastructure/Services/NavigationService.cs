@@ -1,11 +1,14 @@
 using System.IO;
 using AnieView.Core.Interfaces;
+using AnieView.Core.Models;
 
 namespace AnieView.Infrastructure.Services;
 
 public class NavigationService : INavigationService
 {
     private static readonly string[] SupportedExtensions = { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp" };
+
+    public SortOrder SortOrder { get; set; } = SortOrder.FileName;
 
     public string? GetNextFile(string currentFilePath)
     {
@@ -22,10 +25,14 @@ public class NavigationService : INavigationService
         var directory = Path.GetDirectoryName(currentFilePath);
         if (string.IsNullOrEmpty(directory)) return null;
 
-        var files = Directory.GetFiles(directory)
-            .Where(f => SupportedExtensions.Contains(Path.GetExtension(f).ToLower()))
-            .OrderBy(f => f)
-            .ToList();
+        var filteredFiles = Directory.GetFiles(directory)
+            .Where(f => SupportedExtensions.Contains(Path.GetExtension(f).ToLower()));
+
+        var files = SortOrder switch
+        {
+            SortOrder.LastModified => filteredFiles.OrderBy(f => File.GetLastWriteTime(f)).ToList(),
+            _ => filteredFiles.OrderBy(f => f).ToList(),
+        };
 
         if (files.Count <= 1) return null;
 

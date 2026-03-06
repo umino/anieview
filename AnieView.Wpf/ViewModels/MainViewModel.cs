@@ -14,6 +14,8 @@ public partial class MainViewModel : ObservableObject
     private readonly CalculateZoomUseCase _calculateZoomUseCase;
     private readonly IScreenInfoService _screenInfoService;
     private readonly CreateEmptyImageUseCase _createEmptyImageUseCase;
+    private readonly ISettingsService _settingsService;
+    private readonly INavigationService _navigationService;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ScaleX))]
@@ -66,7 +68,9 @@ public partial class MainViewModel : ObservableObject
         NavigateImageUseCase navigateImageUseCase,
         CalculateZoomUseCase calculateZoomUseCase,
         IScreenInfoService screenInfoService,
-        CreateEmptyImageUseCase createEmptyImageUseCase)
+        CreateEmptyImageUseCase createEmptyImageUseCase,
+        ISettingsService settingsService,
+        INavigationService navigationService)
     {
         _windowService = windowService;
         _loadImageUseCase = loadImageUseCase;
@@ -74,6 +78,8 @@ public partial class MainViewModel : ObservableObject
         _calculateZoomUseCase = calculateZoomUseCase;
         _screenInfoService = screenInfoService;
         _createEmptyImageUseCase = createEmptyImageUseCase;
+        _settingsService = settingsService;
+        _navigationService = navigationService;
     }
 
     public async Task LoadInitialImage(string filePath)
@@ -156,6 +162,23 @@ public partial class MainViewModel : ObservableObject
     {
         if (_currentImageFile == null) return;
         _windowService.OpenDuplicateWindow(_currentImageFile.FilePath, ZoomPercentage, RotationAngle);
+    }
+
+    [RelayCommand]
+    private void ToggleSortOrder()
+    {
+        // ソート順を切り替え
+        var newOrder = _settingsService.SortOrder == SortOrder.FileName 
+            ? SortOrder.LastModified 
+            : SortOrder.FileName;
+
+        _settingsService.SortOrder = newOrder;
+        _navigationService.SortOrder = newOrder;
+        _settingsService.Save();
+
+        // ユーザーへのフィードバック表示
+        var orderName = newOrder == SortOrder.FileName ? "ファイル名順" : "更新日時順";
+        WindowTitle = $"AnieView - Sort: {orderName}";
     }
 
     [RelayCommand]

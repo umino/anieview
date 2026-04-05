@@ -76,7 +76,10 @@ public partial class MainWindow : Window
                     System.Windows.Application.Current.Shutdown();
                 }
                 break;
-            
+            case Key.B:
+                ViewModel.BringAllToFrontCommand.Execute(null);
+                break;
+
             // Fractional Resizing (2, 3, 4, 5, 6)
             case Key.D2:
             case Key.D3:

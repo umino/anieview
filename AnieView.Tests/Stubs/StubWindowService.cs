@@ -16,4 +16,9 @@ public class StubWindowService : IWindowService
         LastZoomPercentage = zoomPercentage;
         LastRotationAngle = rotationAngle;
     }
+
+    public void BringAllWindowsToForeground()
+    {
+        // ここでは特に何もしない
+    }
 }

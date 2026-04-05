@@ -20,11 +20,21 @@ public class WpfWindowService : IWindowService
         {
             // まず画像をロード
             _ = vm.LoadInitialImage(filePath);
-            
+
             // パラメータを復元
             vm.ZoomPercentage = zoomPercentage;
             vm.RotationAngle = rotationAngle;
         }
         newWindow.Show();
+    }
+
+    public void BringAllWindowsToForeground()
+    {
+        foreach (Window window in System.Windows.Application.Current.Windows)
+        {
+            window.Activate();
+            window.Topmost = true;
+            window.Topmost = false; // Topmostを解除して前面に持ってくる
+        }
     }
 }

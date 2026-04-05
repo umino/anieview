@@ -165,6 +165,12 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void BringAllToFront()
+    {
+        _windowService.BringAllWindowsToForeground();
+    }
+
+    [RelayCommand]
     private void ToggleSortOrder()
     {
         // ソート順を切り替え

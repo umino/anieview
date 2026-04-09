@@ -31,6 +31,16 @@ public partial class MainWindow : Window
         if (this.Top != top) this.Top = top;
     }
 
+    /// <summary>
+    /// 手動リサイズ後に SizeToContent が Manual になるため、コンテンツ追従リサイズを復元する。
+    /// </summary>
+    private void ResetSizeToContent()
+    {
+        this.Width = double.NaN;
+        this.Height = double.NaN;
+        this.SizeToContent = SizeToContent.WidthAndHeight;
+    }
+
     private void Window_KeyDown(object sender, KeyEventArgs e)
     {
         bool isShift = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
@@ -40,25 +50,32 @@ public partial class MainWindow : Window
         {
             case Key.Right:
                 ViewModel.NavigateCommand.Execute("1");
+                ResetSizeToContent();
                 break;
             case Key.Space:
                 ViewModel.NavigateCommand.Execute(isShift ? "1": "-1");
+                ResetSizeToContent();
                 break;
             case Key.Left:
             case Key.Back:
                 ViewModel.NavigateCommand.Execute("-1");
+                ResetSizeToContent();
                 break;
-            case Key.OemPlus: // + (Plus) on Japanese keyboard  
+            case Key.OemPlus: // + (Plus) on Japanese keyboard
                 ViewModel.ZoomInCommand.Execute(null);
+                ResetSizeToContent();
                 break;
             case Key.OemMinus: // -
                 ViewModel.ZoomOutCommand.Execute(null);
+                ResetSizeToContent();
                 break;
             case Key.R:
                 ViewModel.RotateCommand.Execute(null);
+                ResetSizeToContent();
                 break;
             case Key.F:
                 ViewModel.ToggleFitToScreenCommand.Execute(null);
+                ResetSizeToContent();
                 break;
             case Key.D:
                 ViewModel.DuplicateCommand.Execute(null);
@@ -89,6 +106,7 @@ public partial class MainWindow : Window
                 int n = (int)e.Key - (int)Key.D0;
                 string param = $"{(isShift ? 'H' : 'W')}{n}";
                 ViewModel.ResizeToFractionCommand.Execute(param);
+                ResetSizeToContent();
                 break;
         }
     }

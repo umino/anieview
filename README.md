@@ -2,6 +2,13 @@
 
 Windows向け軽量画像ビューワー。
 
+## ダウンロード
+
+[Releases](https://github.com/umino/anieview/releases/latest) から最新版の `AnieView.zip` をダウンロードしてください。
+
+- ZIP を展開して `AnieView.Wpf.exe` を実行するだけで使えます（インストール不要）
+- 動作には Windows 10 / 11 (x64) が必要です（.NET インストール不要）
+
 ## 特徴
 
 - キーボードショートカットによる快速操作

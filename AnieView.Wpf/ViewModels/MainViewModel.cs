@@ -16,6 +16,8 @@ public partial class MainViewModel : ObservableObject
     private readonly CreateEmptyImageUseCase _createEmptyImageUseCase;
     private readonly ISettingsService _settingsService;
     private readonly INavigationService _navigationService;
+    private readonly ISaveImageService _saveImageService;
+    private readonly IImageService _imageService;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ScaleX))]
@@ -39,6 +41,12 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private string _windowTitle = "AnieView";
+
+    [ObservableProperty]
+    private bool _isClippingMode = false;
+
+    private (int X, int Y, int Width, int Height)? _cropRect;
+    public bool HasSelection => _cropRect.HasValue;
 
     public double ScaleX
     {
@@ -70,7 +78,9 @@ public partial class MainViewModel : ObservableObject
         IScreenInfoService screenInfoService,
         CreateEmptyImageUseCase createEmptyImageUseCase,
         ISettingsService settingsService,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        ISaveImageService saveImageService,
+        IImageService imageService)
     {
         _windowService = windowService;
         _loadImageUseCase = loadImageUseCase;
@@ -80,6 +90,8 @@ public partial class MainViewModel : ObservableObject
         _createEmptyImageUseCase = createEmptyImageUseCase;
         _settingsService = settingsService;
         _navigationService = navigationService;
+        _saveImageService = saveImageService;
+        _imageService = imageService;
     }
 
     public async Task LoadInitialImage(string filePath)
@@ -91,7 +103,9 @@ public partial class MainViewModel : ObservableObject
     private async Task LoadCurrentImage()
     {
         if (_currentImageFile == null) return;
-        
+
+        ClearCropRect();
+
         var imageData = await _loadImageUseCase.ExecuteAsync(_currentImageFile.FilePath);
         DisplayImage = imageData;
 
@@ -111,7 +125,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (_currentImageFile == null || !int.TryParse(directionStr, out int direction)) return;
 
-        string? nextPath = direction > 0 
+        string? nextPath = direction > 0
             ? _navigateImageUseCase.GetNextPath(_currentImageFile.FilePath)
             : _navigateImageUseCase.GetPreviousPath(_currentImageFile.FilePath);
 
@@ -173,16 +187,14 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void ToggleSortOrder()
     {
-        // ソート順を切り替え
-        var newOrder = _settingsService.SortOrder == SortOrder.FileName 
-            ? SortOrder.LastModified 
+        var newOrder = _settingsService.SortOrder == SortOrder.FileName
+            ? SortOrder.LastModified
             : SortOrder.FileName;
 
         _settingsService.SortOrder = newOrder;
         _navigationService.SortOrder = newOrder;
         _settingsService.Save();
 
-        // ユーザーへのフィードバック表示
         var orderName = newOrder == SortOrder.FileName ? "ファイル名順" : "更新日時順";
         WindowTitle = $"AnieView - Sort: {orderName}";
     }
@@ -193,13 +205,59 @@ public partial class MainViewModel : ObservableObject
         var imageData = await _createEmptyImageUseCase.ExecuteAsync();
         DisplayImage = imageData;
         _currentImageFile = null;
+        ClearCropRect();
 
-        // 表示状態をリセット
         ZoomPercentage = 100.0;
         RotationAngle = 0;
         WindowTitle = $"AnieView - Empty Image ({imageData.Width}x{imageData.Height})";
     }
 
+    [RelayCommand]
+    private void ToggleClippingMode()
+    {
+        IsClippingMode = !IsClippingMode;
+        if (!IsClippingMode)
+            ClearCropRect();
+    }
+
+    [RelayCommand]
+    private async Task SaveAs()
+    {
+        if (DisplayImage == null) return;
+        await _saveImageService.SaveAsync(DisplayImage, _cropRect);
+    }
+
+    /// <summary>
+    /// Viewのマウス操作で確定した切り取り範囲をピクセル座標でセットし、DisplayImage をクロップ後の画像に更新する。
+    /// </summary>
+    public void SetCropRect(int x, int y, int width, int height)
+    {
+        if (DisplayImage == null) return;
+
+        var cropped = _imageService.CropImage(DisplayImage, x, y, width, height);
+        if (cropped == null) return;
+
+        // DisplayImage をクロップ済み画像に差し替え（_cropRect は不要）
+        DisplayImage = cropped;
+        _cropRect = null;
+        OnPropertyChanged(nameof(HasSelection));
+        IsClippingMode = false;
+        WindowTitle = $"AnieView - {_currentImageFile?.FileName} - クロップ済み（S で保存）";
+    }
+
+    public void CancelClipping()
+    {
+        ClearCropRect();
+        IsClippingMode = false;
+        if (_currentImageFile != null)
+            WindowTitle = $"AnieView - {_currentImageFile.FileName} ({ZoomPercentage:F0}%)";
+    }
+
+    private void ClearCropRect()
+    {
+        _cropRect = null;
+        OnPropertyChanged(nameof(HasSelection));
+    }
 
     partial void OnZoomPercentageChanged(double value)
     {

@@ -15,7 +15,8 @@
     </Window.Resources>
     <Grid>
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="MainScrollViewer">
-            <Image Source="{Binding DisplayImage, Converter={StaticResource ImageDataToSourceConverter}}" 
+            <Image x:Name="MainImage"
+                   Source="{Binding DisplayImage, Converter={StaticResource ImageDataToSourceConverter}}"
                    RenderOptions.BitmapScalingMode="HighQuality"
                    Stretch="None"
                    HorizontalAlignment="Left"
@@ -28,5 +29,19 @@
                 </Image.LayoutTransform>
             </Image>
         </ScrollViewer>
+        <!-- 矩形クリッピング用オーバーレイ -->
+        <Canvas x:Name="SelectionCanvas"
+                IsHitTestVisible="False"
+                Background="Transparent"
+                MouseDown="SelectionCanvas_MouseDown"
+                MouseMove="SelectionCanvas_MouseMove"
+                MouseUp="SelectionCanvas_MouseUp">
+            <Rectangle x:Name="SelectionRect"
+                       Stroke="#FFD700"
+                       StrokeThickness="1.5"
+                       StrokeDashArray="5 3"
+                       Fill="#22FFD700"
+                       Visibility="Collapsed"/>
+        </Canvas>
     </Grid>
 </Window>

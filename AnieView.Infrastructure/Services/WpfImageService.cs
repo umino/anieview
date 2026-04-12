@@ -42,6 +42,29 @@ public class WpfImageService : IImageService
         }
     }
 
+    public ImageData? CropImage(ImageData source, int x, int y, int width, int height)
+    {
+        var bitmap = source.RawNativeImage as BitmapSource;
+        if (bitmap == null) return null;
+
+        x = Math.Max(0, x);
+        y = Math.Max(0, y);
+        width = Math.Min(width, bitmap.PixelWidth - x);
+        height = Math.Min(height, bitmap.PixelHeight - y);
+        if (width <= 0 || height <= 0) return null;
+
+        var cropped = new CroppedBitmap(bitmap, new System.Windows.Int32Rect(x, y, width, height));
+        cropped.Freeze();
+
+        return new ImageData(
+            pixelBuffer: Array.Empty<byte>(),
+            width: cropped.PixelWidth,
+            height: cropped.PixelHeight,
+            dpiX: cropped.DpiX,
+            dpiY: cropped.DpiY,
+            rawNativeImage: cropped);
+    }
+
     public async Task<ImageData> CreateEmptyImageAsync(int width, int height)
     {
         return await Task.Run(() =>

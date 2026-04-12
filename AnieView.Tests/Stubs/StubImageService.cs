@@ -23,4 +23,9 @@ public class StubImageService : IImageService
         CreateEmptyImageCallCount++;
         return Task.FromResult(CreateEmptyImageResult);
     }
+
+    public ImageData? CropImage(ImageData source, int x, int y, int width, int height)
+    {
+        return new ImageData(Array.Empty<byte>(), width, height);
+    }
 }

@@ -31,6 +31,7 @@ public partial class App : System.Windows.Application
                 // Window Services
                 services.AddSingleton<IWindowService, WpfWindowService>();
                 services.AddSingleton<IScreenInfoService, WpfScreenInfoService>();
+                services.AddSingleton<ISaveImageService, WpfSaveImageService>();
 
                 // Settings
                 services.AddSingleton<ISettingsService, JsonSettingsService>();
